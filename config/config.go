@@ -19,6 +19,7 @@ type Server struct {
 type Jvm struct {
 	XMLName       xml.Name `xml:"jvm"`
 	Version       int      `xml:"version,attr"`
+	JvmDir        string   `xml:"jvm-dir"`
 	ModulePath    string   `xml:"module-path"`
 	Module        string   `xml:"module"`
 	Classpath     string   `xml:"classpath"`
@@ -27,4 +28,5 @@ type Jvm struct {
 	MainClass     string   `xml:"main-class"`
 	Arguments     string   `xml:"args"`
 	Jar           string   `xml:"jar"`
+	SplashScreen  string   `xml:"splash-screen"`
 }

@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"appbox-launcher/config"
+	"github.com/vektorsoft/launchcode/config"
 )
 
 func main() {

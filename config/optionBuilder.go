@@ -32,31 +32,24 @@ func LoadConfigFile() *Application {
 	return &application
 }
 
-func getJvmName(application *Application) string {
-	var builder strings.Builder
-
-	builder.WriteString("jdk-")
-	builder.WriteString(fmt.Sprintf("%d", application.Jvm.Version))
-
-	return builder.String()
-}
-
 func FindJvmCommand(application *Application) string {
 	var builder strings.Builder
 
-	homeDir := os.Getenv("HOME")
-	builder.WriteString(homeDir + "/")
-	builder.WriteString("AppBox/JVM/")
-	builder.WriteString(getJvmName(application))
-	builder.WriteString("/bin/java")
+	if len(application.Jvm.JvmDir) > 0 {
+		builder.WriteString(application.Jvm.JvmDir)
+		builder.WriteString("/bin/java")
+		return filepath.FromSlash(builder.String())
+	} else {
+		return "java" // hope that java is on path
+	}
 
-	return filepath.FromSlash(builder.String())
 }
 
 func GetCmdLineOptions(application *Application) []string {
 	options := make([]string, 0)
 	options = append(options, setJvmOptions(application)...)
 	options = append(options, setJvmProperties(application)...)
+	options = append(options, setSplashScreen(application)...)
 	options = append(options, setModulePath(application)...)
 	options = append(options, setModule(application)...)
 	options = append(options, setClasspath(application)...)
@@ -109,6 +102,16 @@ func setMainClass(application *Application) []string {
 func setJar(application *Application) []string {
 	if len(application.Jvm.Jar) > 0 {
 		return []string{"-jar", strings.TrimSpace(application.Jvm.Jar)}
+	}
+	return []string{}
+}
+
+func setSplashScreen(application *Application) []string {
+	if len(application.Jvm.SplashScreen) > 0 {
+		var builder strings.Builder
+		builder.WriteString("-splash:")
+		builder.WriteString(application.Jvm.SplashScreen)
+		return []string{builder.String()}
 	}
 	return []string{}
 }
