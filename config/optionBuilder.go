@@ -51,6 +51,7 @@ func GetCmdLineOptions(application *Application) []string {
 	options = append(options, setJvmProperties(application)...)
 	options = append(options, setSplashScreen(application)...)
 	options = append(options, setModulePath(application)...)
+	options = append(options, addModules(application)...)
 	options = append(options, setModule(application)...)
 	options = append(options, setClasspath(application)...)
 	options = append(options, setMainClass(application)...)
@@ -74,6 +75,13 @@ func setModule(application *Application) []string {
 	}
 	return []string{}
 
+}
+
+func addModules(application *Application) []string {
+	if len(application.Jvm.AddModules) > 0 {
+		return []string{fmt.Sprintf("--add-modules=%s", strings.TrimSpace(application.Jvm.AddModules))}
+	}
+	return []string{}
 }
 
 func setClasspath(application *Application) []string {

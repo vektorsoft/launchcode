@@ -22,6 +22,7 @@ type Jvm struct {
 	JvmDir        string   `xml:"jvm-dir"`
 	ModulePath    string   `xml:"module-path"`
 	Module        string   `xml:"module"`
+	AddModules    string   `xml:"add-modules"`
 	Classpath     string   `xml:"classpath"`
 	JvmOptions    string   `xml:"jvm-options"`
 	JvmProperties string   `xml:"jvm-properties"`
