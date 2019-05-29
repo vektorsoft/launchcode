@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/xml"
 	"fmt"
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -32,18 +33,72 @@ func LoadConfigFile() *Application {
 	return &application
 }
 
-func FindJvmCommand(application *Application) string {
-	var builder strings.Builder
-
-	if len(application.Jvm.JvmDir) > 0 {
-		builder.WriteString(application.Jvm.JvmDir)
-		builder.WriteString("/bin/java")
-		return filepath.FromSlash(builder.String())
-	} else {
-		return "java" // hope that java is on path
+func FindJvmCommand(application *Application) (string,error) {
+	jvmDir, err := calculateTargetJvmDir(application)
+	if(err != nil) {
+		return "", err
 	}
+	var baseJvmDir = application.Jvm.JvmBaseDir
+	var sb strings.Builder
+	sb.WriteString(baseJvmDir)
+	sb.WriteString("/")
+	sb.WriteString(jvmDir)
+	// attempt to find java executable
+	javaExecPath, err := findJavaExecutable(sb.String())
+	if(err != nil) {
+		return "", err
+	}
+	return javaExecPath,nil
 
 }
+
+func calculateTargetJvmDir(application *Application) (string,error)	 {
+	var sb strings.Builder
+	sb.WriteString(application.Jvm.Provider)
+	sb.WriteString("-")
+	sb.WriteString(application.Jvm.JdkVersion)
+	sb.WriteString("-")
+	sb.WriteString(application.Jvm.BinaryType)
+	sb.WriteString("-")
+	sb.WriteString(application.Jvm.Implementation)
+	if len(application.Jvm.ExactVersion) > 0 {
+		sb.WriteString("-")
+		sb.WriteString(application.Jvm.ExactVersion)
+	}
+	// list all subdirs and try to find a match
+	var dirName string
+	dirs, err := ioutil.ReadDir(application.Jvm.JvmBaseDir)
+    if err != nil {
+        return "", errors.New("Failed to read directory")
+    }
+    // ReadDir returns list of dirs sorted in ascending order
+    // need to go in reverse to find latest Java version
+    for i := len(dirs) - 1; i >= 0; i-- {
+            if strings.HasPrefix(dirs[i].Name(), sb.String()) {
+            	dirName = dirs[i].Name()
+            	break
+            }
+    }
+    return dirName, nil
+}
+
+func findJavaExecutable(origin string) (string,error) {
+	var execPath = ""
+	err := filepath.Walk(origin, func(path string, info os.FileInfo, err error) error{
+		if err != nil {
+			return err
+		}
+		if(info.Name() == "java") {
+			execPath = path
+		}
+		return nil
+	})
+	if(err != nil) {
+		return "",errors.New("Could not find java executable")
+	}
+	return execPath,nil
+}
+
 
 func GetCmdLineOptions(application *Application) []string {
 	options := make([]string, 0)

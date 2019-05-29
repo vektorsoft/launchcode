@@ -24,7 +24,10 @@ func main() {
 
 	// status := client.CheckUpdateStatus(application, httpClient)
 	// fmt.Println(status)
-	jvmPath := config.FindJvmCommand(application)
+	jvmPath, err := config.FindJvmCommand(application)
+	if(err != nil) {
+		fmt.Println("Could not find java command")
+	}
 
 	args := config.GetCmdLineOptions(application)
 	fmt.Println(args)

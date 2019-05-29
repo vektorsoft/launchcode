@@ -18,8 +18,12 @@ type Server struct {
 
 type Jvm struct {
 	XMLName       xml.Name `xml:"jvm"`
-	Version       int      `xml:"version,attr"`
-	JvmDir        string   `xml:"jvm-dir"`
+	Provider      string   `xml:"provider,attr"`
+	JdkVersion	  string   `xml:"jdk-version,attr"`
+	BinaryType	  string   `xml:"binary-type,attr"`
+	Implementation  string `xml:"implementation,attr"`
+	ExactVersion  string   `xml:"exact-version,attr"`
+	JvmBaseDir        string   `xml:"jvm-base-dir"`
 	ModulePath    string   `xml:"module-path"`
 	Module        string   `xml:"module"`
 	AddModules    string   `xml:"add-modules"`
